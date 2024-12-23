@@ -28,3 +28,13 @@ resource "google_project_service" "logging" {
   project = google_project.myProject.project_id
   service = "logging.googleapis.com"
 }
+
+resource "google_project_service" "cloudbuild" {
+  project = google_project.myProject.project_id
+  service = "cloudbuild.googleapis.com"
+}
+
+resource "google_project_service" "gke" {
+  project = google_project.myProject.project_id
+  service = "container.googleapis.com"
+}
