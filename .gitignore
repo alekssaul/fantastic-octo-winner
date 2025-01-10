@@ -1,0 +1,6 @@
+.vscode
+.terraform*
+*.tfstate*
+terraform.tfstate.backup
+*.env
+secrets/*
