@@ -10,6 +10,12 @@ resource "google_project_iam_member" "cloudbuild_act_as" {
   member  = "serviceAccount:${google_service_account.cloudbuild.email}"
 }
 
+resource "google_project_iam_member" "cloudbuild_dockerpush" {
+  project = google_project.myProject.project_id
+  role    = "roles/artifactregistry.writer"
+  member  = "serviceAccount:${google_service_account.cloudbuild.email}"
+}
+
 resource "google_project_iam_member" "cloudbuild_logs_writer" {
   project = google_project.myProject.project_id
   role    = "roles/logging.logWriter"
@@ -68,6 +74,8 @@ resource "google_cloudbuildv2_repository" "my-repository" {
 
 resource "google_cloudbuild_trigger" "backend" {
   location        = "us-central1"
+  name            = "backend"
+  description     = "Backend build"
   project         = google_project.myProject.project_id
   service_account = google_service_account.cloudbuild.id
   repository_event_config {
@@ -77,9 +85,25 @@ resource "google_cloudbuild_trigger" "backend" {
     }
   }
 
-  filename = "src/backend/Dockerfile"
   depends_on = [
     google_project_iam_member.cloudbuild_act_as,
     google_project_iam_member.cloudbuild_logs_writer
   ]
+
+  build {
+    options {
+      logging = "CLOUD_LOGGING_ONLY"
+
+    }
+    step {
+      name   = "gcr.io/cloud-builders/docker"
+      script = "docker build -t ${google_artifact_registry_repository.docker.location}-docker.pkg.dev/${google_artifact_registry_repository.docker.project}/${google_artifact_registry_repository.docker.name}/backend:main ./src/backend"
+    }
+    artifacts {
+      images = [
+        "${google_artifact_registry_repository.docker.location}-docker.pkg.dev/${google_artifact_registry_repository.docker.project}/${google_artifact_registry_repository.docker.name}/backend:main"
+      ]
+    }
+
+  }
 }
