@@ -4,6 +4,7 @@ resource "google_project" "myProject" {
   name            = "${var.project_prefix}-${random_string.project_id.result}"
   project_id      = "${var.project_prefix}-${random_string.project_id.result}"
   billing_account = var.project_billingaccount
+  deletion_policy = "DELETE"
 }
 
 resource "random_string" "project_id" {
@@ -15,8 +16,9 @@ resource "random_string" "project_id" {
 
 # APIs to enable
 resource "google_project_service" "compute_engine" {
-  project = google_project.myProject.project_id
-  service = "compute.googleapis.com"
+  project                    = google_project.myProject.project_id
+  service                    = "compute.googleapis.com"
+  disable_dependent_services = true
 }
 
 resource "google_project_service" "monitoring" {
@@ -37,4 +39,9 @@ resource "google_project_service" "cloudbuild" {
 resource "google_project_service" "gke" {
   project = google_project.myProject.project_id
   service = "container.googleapis.com"
+}
+
+resource "google_project_service" "secretmanager" {
+  project = google_project.myProject.project_id
+  service = "secretmanager.googleapis.com"
 }

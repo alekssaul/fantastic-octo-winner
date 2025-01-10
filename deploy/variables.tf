@@ -20,3 +20,14 @@ variable "gke_autopilot" {
   description = "Binary switch to enable/disable autopilot GKE cluster"
   default     = true
 }
+
+variable "github_installationid" {
+  type        = string
+  description = "Github installation ID : \"https://github.com/settings/installations\""
+}
+
+variable "github_repo" {
+  type        = string
+  description = "Github repo address"
+  default     = "https://github.com/alekssaul/fantastic-octo-winner.git"
+}
